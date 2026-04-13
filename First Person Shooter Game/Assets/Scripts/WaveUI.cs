@@ -21,7 +21,8 @@ public class WaveUI : MonoBehaviour
 
         if (waveText != null)
         {
-            waveText.text = $"Wave: {waveManager.CurrentWave}";
+            int displayWave = Mathf.Max(1, waveManager.CurrentWave);
+            waveText.text = $"Wave: {displayWave}";
         }
 
         if (intermissionText != null)

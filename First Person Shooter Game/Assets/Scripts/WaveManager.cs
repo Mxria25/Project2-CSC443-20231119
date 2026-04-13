@@ -18,6 +18,10 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private int extraEnemiesPerWave = 2;
     [SerializeField] private int maxWaves = 5;
 
+    [Header("Wave Score")]
+    [SerializeField] private ScoreManager scoreManager;
+    [SerializeField] private int scorePerEnemy = 10;
+
     private int currentWave = 0;
     private int aliveEnemies = 0;
     private bool waveInProgress = false;
@@ -31,12 +35,18 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
+        if (scoreManager == null)
+        {
+            scoreManager = FindAnyObjectByType<ScoreManager>();
+        }
+
         if (playerHealth == null)
         {
             playerHealth = FindAnyObjectByType<PlayerHealth>();
         }
 
         StartCoroutine(WaveLoop());
+        
     }
 
     private IEnumerator WaveLoop()
@@ -99,6 +109,8 @@ public class WaveManager : MonoBehaviour
     {
         enemy.OnDied -= HandleEnemyDied;
         aliveEnemies--;
+
+        scoreManager?.AddScore(scorePerEnemy);
 
         if (enemyToSpawner.TryGetValue(enemy, out EnemySpawner spawner))
         {
