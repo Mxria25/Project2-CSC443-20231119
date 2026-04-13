@@ -1,46 +1,42 @@
-using System.Collections;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Pool Settings")]
     [SerializeField] private EnemyHealth enemyPrefab;
-    [SerializeField] private int prewarmCount = 5;
+    [SerializeField] private int prewarmCount = 10;
 
     [Header("Spawn Settings")]
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private float spawnInterval = 3f;
-    [SerializeField] private int maxActiveEnemies = 10;
 
     private ObjectPool<EnemyHealth> pool;
 
-    private void Start()
+    private void Awake()
     {
         pool = new ObjectPool<EnemyHealth>(enemyPrefab, transform, prewarmCount);
-        StartCoroutine(SpawnLoop());
     }
 
-    private IEnumerator SpawnLoop()
+    public EnemyHealth SpawnEnemy()
     {
-        while (true)
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            yield return new WaitForSeconds(spawnInterval);
-
-            if (pool.CountActive < maxActiveEnemies && spawnPoints.Length > 0)
-                SpawnEnemy();
+            Debug.LogWarning("No spawn points assigned to EnemySpawner.");
+            return null;
         }
-    }
 
-    private void SpawnEnemy()
-    {
         Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
         EnemyHealth enemy = pool.Get(point.position, point.rotation);
-        enemy.OnDied += HandleEnemyDied;
+        return enemy;
     }
 
-    private void HandleEnemyDied(EnemyHealth enemy)
+    public void DespawnEnemy(EnemyHealth enemy)
     {
-        enemy.OnDied -= HandleEnemyDied;
+        if (enemy == null) return;
         pool.Return(enemy);
+    }
+
+    public void DespawnAll()
+    {
+        pool.ReturnAll();
     }
 }

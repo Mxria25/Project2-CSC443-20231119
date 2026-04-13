@@ -1,4 +1,4 @@
-using NUnit.Framework;
+
 using StarterAssets;
 using UnityEngine;
 using System.Collections.Generic;
@@ -42,14 +42,18 @@ public class WeaponSwitcher : MonoBehaviour
         EquipWeapon(unlockedWeapons.Count - 1);
     }
 
-    void EquipWeapon(int index) {
+    void EquipWeapon(int index)
+{
+    if (index < 0 || index >= unlockedWeapons.Count) return;
 
-        foreach (Weapon weapon in unlockedWeapons) { 
-            weapon.gameObject.SetActive(false);
-
-            currentIndex = index;
-            unlockedWeapons[index].gameObject.SetActive(true);
-            activeWeapon.SwitchWeapon(unlockedWeapons[index]);
-        }
+    foreach (Weapon weapon in unlockedWeapons)
+    {
+        weapon.gameObject.SetActive(false);
     }
+
+    currentIndex = index;
+    unlockedWeapons[index].gameObject.SetActive(true);
+    activeWeapon.SwitchWeapon(unlockedWeapons[index]);
+}
+
 }

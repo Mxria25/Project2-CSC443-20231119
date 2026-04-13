@@ -58,11 +58,15 @@ public class ActiveWeapon : MonoBehaviour
         controller.ApplyRecoil(weaponData.recoilY, yawKick);
 
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
-            out hit, weaponData.range))
+        out hit, weaponData.range))
         {
-            EnemyHealth health = hit.collider.GetComponent<EnemyHealth>();
-            health?.TakeDamage(weaponData.damage);
-            Instantiate(weaponData.hitVFXPrefab, hit.point, Quaternion.identity);
+        EnemyHealth health = hit.collider.GetComponentInParent<EnemyHealth>();
+        health?.TakeDamage(weaponData.damage);
+
+        if (weaponData.hitVFXPrefab != null)
+        {
+            Instantiate(weaponData.hitVFXPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+        }
         }
     }
 

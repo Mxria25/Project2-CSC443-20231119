@@ -27,16 +27,30 @@ public class Projectile : MonoBehaviour, IPoolable
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
         if (Time.time >= returnTime)
+        {
             Return();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!alive) return;
 
-        var health = other.GetComponentInParent<EnemyHealth>();
-        if (health != null)
-            health.TakeDamage(damage);
+        PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(damage);
+            Return();
+            return;
+        }
+
+        EnemyHealth enemyHealth = other.GetComponentInParent<EnemyHealth>();
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(damage);
+            Return();
+            return;
+        }
 
         Return();
     }
@@ -44,6 +58,7 @@ public class Projectile : MonoBehaviour, IPoolable
     private void Return()
     {
         if (!alive) return;
+
         alive = false;
         returnAction?.Invoke(this);
     }
