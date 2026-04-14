@@ -44,14 +44,6 @@ public class Projectile : MonoBehaviour, IPoolable
             return;
         }
 
-        EnemyHealth enemyHealth = other.GetComponentInParent<EnemyHealth>();
-        if (enemyHealth != null)
-        {
-            enemyHealth.TakeDamage(damage);
-            Return();
-            return;
-        }
-
         Return();
     }
 

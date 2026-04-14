@@ -4,23 +4,25 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private EnemySpawner robotSpawner;
-    [SerializeField] private PlayerHealth playerHealth;
 
-    [Header("Wave Timing")]
+    public bool GameWon => currentWave >= maxWaves && aliveEnemies == 0;
+    
+    [Header("Spawners")]
+    [SerializeField] private EnemySpawner runnerSpawner;
+    [SerializeField] private EnemySpawner tankSpawner;
+    [SerializeField] private EnemySpawner turretSpawner;
+
+    [Header("References")]
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private ScoreManager scoreManager;
+
+    [Header("Timing")]
     [SerializeField] private float startDelay = 2f;
     [SerializeField] private float timeBetweenWaves = 5f;
     [SerializeField] private float spawnDelay = 0.5f;
 
-    [Header("Wave Difficulty")]
-    [SerializeField] private int startingEnemyCount = 3;
-    [SerializeField] private int extraEnemiesPerWave = 2;
+    [Header("Wave Settings")]
     [SerializeField] private int maxWaves = 5;
-
-    [Header("Wave Score")]
-    [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private int scorePerEnemy = 10;
 
     private int currentWave = 0;
     private int aliveEnemies = 0;
@@ -29,24 +31,15 @@ public class WaveManager : MonoBehaviour
     private Dictionary<EnemyHealth, EnemySpawner> enemyToSpawner = new Dictionary<EnemyHealth, EnemySpawner>();
 
     public int CurrentWave => currentWave;
-    public int AliveEnemies => aliveEnemies;
     public bool WaveInProgress => waveInProgress;
     public bool AllWavesCompleted => currentWave >= maxWaves && aliveEnemies == 0 && !waveInProgress;
 
     private void Start()
     {
-        if (scoreManager == null)
-        {
-            scoreManager = FindAnyObjectByType<ScoreManager>();
-        }
-
-        if (playerHealth == null)
-        {
-            playerHealth = FindAnyObjectByType<PlayerHealth>();
-        }
+        if (playerHealth == null) playerHealth = FindAnyObjectByType<PlayerHealth>();
+        if (scoreManager == null) scoreManager = FindAnyObjectByType<ScoreManager>();
 
         StartCoroutine(WaveLoop());
-        
     }
 
     private IEnumerator WaveLoop()
@@ -57,23 +50,17 @@ public class WaveManager : MonoBehaviour
         {
             yield return StartCoroutine(StartNextWave());
 
-            while (aliveEnemies > 0 && playerHealth != null && !playerHealth.IsDead)
+            while (aliveEnemies > 0 && !playerHealth.IsDead)
             {
                 yield return null;
             }
 
             waveInProgress = false;
 
-            if (playerHealth != null && !playerHealth.IsDead && currentWave < maxWaves)
+            if (!playerHealth.IsDead && currentWave < maxWaves)
             {
-                Debug.Log("Wave cleared. Next wave in " + timeBetweenWaves + " seconds.");
                 yield return new WaitForSeconds(timeBetweenWaves);
             }
-        }
-
-        if (playerHealth != null && !playerHealth.IsDead && currentWave >= maxWaves && aliveEnemies == 0)
-        {
-            Debug.Log("All waves completed.");
         }
     }
 
@@ -82,18 +69,35 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         waveInProgress = true;
 
-        int enemyCount = startingEnemyCount + (currentWave - 1) * extraEnemiesPerWave;
+        Debug.Log("Starting Wave " + currentWave);
 
-        Debug.Log("Starting Wave " + currentWave + " with " + enemyCount + " enemies.");
+        int runners = 2 + currentWave * 2;
+        int tanks = currentWave >= 2 ? currentWave : 0;
+        int turrets = currentWave >= 3 ? 1 : 0;
 
-        for (int i = 0; i < enemyCount; i++)
+        // runners
+        for (int i = 0; i < runners; i++)
         {
-            SpawnFrom(robotSpawner);
+            Spawn(runnerSpawner);
+            yield return new WaitForSeconds(spawnDelay);
+        }
+
+        // tanks
+        for (int i = 0; i < tanks; i++)
+        {
+            Spawn(tankSpawner);
+            yield return new WaitForSeconds(spawnDelay);
+        }
+
+        // turrets
+        for (int i = 0; i < turrets; i++)
+        {
+            Spawn(turretSpawner);
             yield return new WaitForSeconds(spawnDelay);
         }
     }
 
-    private void SpawnFrom(EnemySpawner spawner)
+    private void Spawn(EnemySpawner spawner)
     {
         if (spawner == null) return;
 
@@ -110,7 +114,7 @@ public class WaveManager : MonoBehaviour
         enemy.OnDied -= HandleEnemyDied;
         aliveEnemies--;
 
-        scoreManager?.AddScore(scorePerEnemy);
+        scoreManager?.AddScore(10);
 
         if (enemyToSpawner.TryGetValue(enemy, out EnemySpawner spawner))
         {

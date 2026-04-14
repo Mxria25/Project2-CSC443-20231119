@@ -29,12 +29,37 @@ public class ShopManager : MonoBehaviour
         if (weaponSwitcher == null) weaponSwitcher = FindAnyObjectByType<WeaponSwitcher>();
         if (waveManager == null) waveManager = FindAnyObjectByType<WaveManager>();
 
-        shopPanel.SetActive(false);
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+
+        if (playerHealth != null)
+        {
+            playerHealth.OnDied += HandlePlayerDied;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnDied -= HandlePlayerDied;
+        }
     }
 
     private void Update()
     {
-        if (waveManager == null) return;
+        if (waveManager == null || playerHealth == null) return;
+
+        if (playerHealth.IsDead)
+        {
+            if (shopActive)
+            {
+                CloseShopAfterDeath();
+            }
+            return;
+        }
 
         bool shouldShowShop =
             !waveManager.WaveInProgress &&
@@ -51,17 +76,23 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    private void HandlePlayerDied()
+    {
+        CloseShopAfterDeath();
+    }
+
     private void OpenShop()
     {
         shopActive = true;
 
-        shopPanel.SetActive(true);
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(true);
+        }
 
-        // unlock mouse
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // disable shooting + switching
         if (activeWeapon != null) activeWeapon.enabled = false;
         if (weaponSwitcher != null) weaponSwitcher.enabled = false;
     }
@@ -70,19 +101,37 @@ public class ShopManager : MonoBehaviour
     {
         shopActive = false;
 
-        shopPanel.SetActive(false);
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
 
-        // lock mouse back
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // re-enable shooting + switching
         if (activeWeapon != null) activeWeapon.enabled = true;
         if (weaponSwitcher != null) weaponSwitcher.enabled = true;
     }
 
+    private void CloseShopAfterDeath()
+    {
+        shopActive = false;
+
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+
+        if (infoText != null)
+        {
+            infoText.text = "";
+        }
+    }
+
     public void BuyHeal()
     {
+        if (!CanBuy()) return;
+
         if (!scoreManager.SpendScore(healCost))
         {
             ShowInfo("Not enough points!");
@@ -95,13 +144,15 @@ public class ShopManager : MonoBehaviour
 
     public void BuyAmmo()
     {
+        if (!CanBuy()) return;
+
         if (!scoreManager.SpendScore(ammoCost))
         {
             ShowInfo("Not enough points!");
             return;
         }
 
-        if (activeWeapon.CurrentWeapon != null)
+        if (activeWeapon != null && activeWeapon.CurrentWeapon != null)
         {
             activeWeapon.CurrentWeapon.RefillAmmo();
         }
@@ -111,18 +162,29 @@ public class ShopManager : MonoBehaviour
 
     public void BuyDamage()
     {
+        if (!CanBuy()) return;
+
         if (!scoreManager.SpendScore(damageCost))
         {
             ShowInfo("Not enough points!");
             return;
         }
 
-        if (activeWeapon.CurrentWeapon != null)
+        if (activeWeapon != null && activeWeapon.CurrentWeapon != null)
         {
             activeWeapon.CurrentWeapon.Data.damage += 2;
         }
 
         ShowInfo("Damage increased!");
+    }
+
+    private bool CanBuy()
+    {
+        if (!shopActive) return false;
+        if (playerHealth == null || playerHealth.IsDead) return false;
+        if (scoreManager == null) return false;
+
+        return true;
     }
 
     private void ShowInfo(string message)
