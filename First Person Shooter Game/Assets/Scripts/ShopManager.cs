@@ -15,9 +15,9 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI infoText;
 
     [Header("Costs")]
-    [SerializeField] private int healCost = 20;
-    [SerializeField] private int ammoCost = 15;
-    [SerializeField] private int damageCost = 30;
+    [SerializeField] private int healCost = 30;
+    [SerializeField] private int ammoCost = 25;
+    [SerializeField] private int damageCost = 60;
 
     private bool shopActive = false;
 
