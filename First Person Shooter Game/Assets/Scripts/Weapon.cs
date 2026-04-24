@@ -19,15 +19,23 @@ public class Weapon : MonoBehaviour
         impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
-    public void Shoot() {
-
+    public void Shoot() 
+    {
         if (!HasAmmo) return;
 
         currentAmmo--;
-        muzzleFlash.Play();
-        impulseSource.GenerateImpulse();
-        Debug.Log(impulseSource);
 
+        if (weaponData.shootSFX != null)
+        {
+            AudioManager.Instance?.PlaySFX(weaponData.shootSFX);
+        }
+
+        muzzleFlash.Play();
+
+        if (impulseSource != null)
+        {
+            impulseSource.GenerateImpulse();
+        }
     }
 
     public void RefillAmmo()

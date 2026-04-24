@@ -63,6 +63,8 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         Debug.Log("GAME OVER");
 
+        AudioManager.Instance?.PlayPlayerDeath();
+
         if (playerController != null)
         {
             playerController.enabled = false;
@@ -83,6 +85,7 @@ public class GameManager : MonoBehaviour
             gameOverText.gameObject.SetActive(true);
             gameOverText.text = "GAME OVER";
         }
+        
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

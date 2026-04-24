@@ -7,6 +7,9 @@ public class WeaponData : ScriptableObject
     [Header("Ammo")]
     public int maxAmmo = 20;
 
+    [Header("Audio")]
+    public AudioClip shootSFX;
+
     [Header("Identity")]
     public string weaponName;
 
