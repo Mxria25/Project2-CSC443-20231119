@@ -275,13 +275,13 @@ MonoBehaviour:
   enemyDeathVolume: 1
   playerDeathSFX: {fileID: 8300000, guid: ee789674c31900b48a7dd8e57022c3ea, type: 3}
   playerDeathVolume: 4
-  winSFX: {fileID: 0}
+  winSFX: {fileID: 8300000, guid: b2d0e44c839c8c341b3359adc5e90aad, type: 3}
   winVolume: 1
-  pickupSFX: {fileID: 0}
+  pickupSFX: {fileID: 8300000, guid: 409aa7baf6acdd34484c8e5d70da3668, type: 3}
   pickupVolume: 1
-  shopBuySFX: {fileID: 0}
+  shopBuySFX: {fileID: 8300000, guid: bb28cd434bdc559458b4169a3a89c524, type: 3}
   shopBuyVolume: 1
-  notEnoughPointsSFX: {fileID: 0}
+  notEnoughPointsSFX: {fileID: 8300000, guid: 69c00a9d9a07fe34783444e237396458, type: 3}
   notEnoughPointsVolume: 1
 --- !u!82 &68177942
 AudioSource:

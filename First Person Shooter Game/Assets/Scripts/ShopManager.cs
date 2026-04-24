@@ -34,6 +34,11 @@ public class ShopManager : MonoBehaviour
             shopPanel.SetActive(false);
         }
 
+        if (infoText != null)
+        {
+            infoText.text = "Choose an upgrade";
+        }
+
         if (playerHealth != null)
         {
             playerHealth.OnDied += HandlePlayerDied;
@@ -90,6 +95,11 @@ public class ShopManager : MonoBehaviour
             shopPanel.SetActive(true);
         }
 
+        if (infoText != null)
+        {
+            infoText.text = "Choose an upgrade";
+        }
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -134,10 +144,12 @@ public class ShopManager : MonoBehaviour
 
         if (!scoreManager.SpendScore(healCost))
         {
+            AudioManager.Instance?.PlayNotEnoughPoints();
             ShowInfo("Not enough points!");
             return;
         }
 
+        AudioManager.Instance?.PlayShopBuy();
         playerHealth.Heal(5);
         ShowInfo("Healed!");
     }
@@ -148,9 +160,12 @@ public class ShopManager : MonoBehaviour
 
         if (!scoreManager.SpendScore(ammoCost))
         {
+            AudioManager.Instance?.PlayNotEnoughPoints();
             ShowInfo("Not enough points!");
             return;
         }
+
+        AudioManager.Instance?.PlayShopBuy();
 
         if (activeWeapon != null && activeWeapon.CurrentWeapon != null)
         {
@@ -166,9 +181,12 @@ public class ShopManager : MonoBehaviour
 
         if (!scoreManager.SpendScore(damageCost))
         {
+            AudioManager.Instance?.PlayNotEnoughPoints();
             ShowInfo("Not enough points!");
             return;
         }
+
+        AudioManager.Instance?.PlayShopBuy();
 
         if (activeWeapon != null && activeWeapon.CurrentWeapon != null)
         {

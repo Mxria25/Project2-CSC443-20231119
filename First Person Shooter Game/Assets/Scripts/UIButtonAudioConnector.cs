@@ -1,18 +1,33 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class UIButtonAudioConnector : MonoBehaviour
 {
     private void Start()
     {
-        Button[] buttons = FindObjectsByType<Button>(FindObjectsSortMode.None);
+        StartCoroutine(AttachToButtonsRoutine());
+    }
 
-        foreach (Button button in buttons)
+    private IEnumerator AttachToButtonsRoutine()
+    {
+        while (true)
         {
-            button.onClick.AddListener(() =>
+            Button[] buttons = FindObjectsByType<Button>(FindObjectsSortMode.None);
+
+            foreach (Button button in buttons)
             {
-                AudioManager.Instance?.PlayButtonClick();
-            });
+                // Avoid adding duplicate listeners
+                button.onClick.RemoveListener(PlayClick);
+                button.onClick.AddListener(PlayClick);
+            }
+
+            yield return new WaitForSeconds(1f); // check every second
         }
+    }
+
+    private void PlayClick()
+    {
+        AudioManager.Instance?.PlayButtonClick();
     }
 }

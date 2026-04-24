@@ -14,6 +14,8 @@ public abstract class Pickup : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         if (OnPickedUp(other))
+
+            AudioManager.Instance?.PlayPickup();
             Destroy(gameObject);
     }
 
